@@ -1,5 +1,11 @@
 const DAO = require('../dao/DAO');
 
-export default class clientsDAO extends DAO {
+class ClientsDAO extends DAO {
 
+    constructor(db){
+        super(db);
+    }
+    
 }
+
+module.exports = ClientsDAO;

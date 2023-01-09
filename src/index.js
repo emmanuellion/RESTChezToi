@@ -1,6 +1,18 @@
-const articlesDAO = require('./articles/articlesDAO');
+const ArticlesDAO = require('./articles/ArticlesDAO');
 
-new articlesDAO("");
+const pathToDb = "";
+
+const a = new ArticlesDAO(pathToDb);
+
+a.getDb().serialize(() => {
+    a.isValideConnection();
+    a.checkUp();
+    // a.dropTable("test");
+});
+
+// a.select();
+
+
 
 // Exécutez une requête SQL
 // db.run('drop table clients')

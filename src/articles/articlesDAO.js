@@ -1,14 +1,29 @@
-const sqlite3 = require('sqlite3');
-
 const DAO = require('../dao/DAO');
 
-module.export = class articlesDAO extends DAO {
+class ArticlesDAO extends DAO {
     
-    constructors(db){
-        try{
-            this.db = new sqlite3.Database(db);
-        } catch(e) {
-            console.log(e)
-        }
+    tableName = "articles";
+
+    constructor(db){
+        super(db);
     }
+    
+    select(){
+        return this.selectDAO(this.constructor.name);
+    }
+
+    insert(name = null, size = null, price = null, origin = null){
+        this.db.run('INSERT INTO articles (name, size, price, origin) VALUES (?, ?, ?, ?)', [name, size, price, origin]);
+    }
+
+    update(){
+
+    }
+
+    delete(){
+
+    }
+
 }
+
+module.exports = ArticlesDAO;
