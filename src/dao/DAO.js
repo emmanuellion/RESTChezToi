@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
+const path = require('path');
 
 class DAO {
 
@@ -23,31 +24,42 @@ class DAO {
 
     static db = null;
 
-    // static constructor(db) {
-    //     this.connect(db);
-    // }
-
     static connect(db) {
-        this.db = new sqlite3.Database(db, (err) => {
+        const filePath = path.join(__dirname, db);
+        this.verifyFile(filePath);
+        this.db = new sqlite3.Database(filePath, (err) => {
             if (err)
                 throw err.message;
-            else
-                console.log("Connexion établie");
+        });
+    }
+
+    static verifyFile(filePath) {
+        fs.access(filePath, fs.constants.F_OK, (err) => {
+            if (err) {
+                fs.writeFile(filePath, '', (err) => {
+                    if (err)
+                        throw err;
+                    console.log("Le fichier "+db+" vient d'être crée");
+                });
+            }
         });
     }
 
     static checkConnection() {
-        let pass = false;
-        this.bdd.tables.forEach(table => {
-            this.db.all('SELECT * FROM ' + table, [], (err) => {
-                if (err === null)
-                    pass = true;
-            });
+        let nbErr = 0;
+        this.bdd.tables.forEach(async table => {
+            try {
+                await this.db.all('SELECT * FROM ' + table, []);
+            } catch (err) {
+               nbErr++;
+            }
         });
-        return pass ? 0 : -1;
+        return nbErr < this.bdd.tables.length ? 0 : -1;
     }
 
     static checkUp() {
+        console.log(this.getDb().filename)
+        console.log(this.checkConnection())
         if (this.checkConnection() === -1) {
             console.log("La base de données n'existe pas, elle va donc être construire");
             this.build();
@@ -55,11 +67,14 @@ class DAO {
             console.log("Vérification de l'intégrité des classes ...");
             this.bdd.tables.forEach(table => {
                 this.db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='" + table + "'", (err, row) => {
-                    if (err)
-                        throw err;
-                    if (row)
-                        console.log(`La table "${table}" existe`);
-                    else {
+                    if (err) {
+                        console.log(err)
+                        this.createTable(table);
+                    }
+                    if (row) {
+                        console.log(row)
+                        console.log(table + " checked");
+                    }else {
                         this.createTable(table);
                     }
                 });
@@ -68,17 +83,16 @@ class DAO {
     }
 
     static build() {
-        fs.writeFile("tempDatabase.db", '', (err) => {
+        const filename = "mydatabase.db";
+        fs.writeFile(filename, "", (err) => {
             if (err)
                 throw err;
-            else {
-                this.db = this.connect("tempDatabase.db");
-                this.bdd.tables.forEach(table => {
-                    this.createTable(table);
-                });
-            }
         });
-
+        console.log("src/"+filename)
+        this.connect("src/"+filename);
+        this.bdd.tables.forEach(table => {
+            this.createTable(table);
+        });
     }
 
     static createTable(name) {
@@ -89,6 +103,7 @@ class DAO {
         });
         str = str.slice(0, str.length - 2);
         str += ')';
+        console.log("caca")
         this.db.run(str, (err) => {
             if (err)
                 throw err;
