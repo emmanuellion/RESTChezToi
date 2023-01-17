@@ -1,18 +1,16 @@
 const DAO = require('../dao/DAO');
 
 class ArticlesDAO extends DAO {
-    
-    tableName = "articles";
 
     constructor(db){
         super(db);
     }
     
-    select(){
-        return this.selectDAO(this.constructor.name);
+    static select(){
+        return this.selectDAO("ArticlesDAO");
     }
 
-    insert(name = null, size = null, price = null, origin = null){
+    static insert(name = null, size = null, price = null, origin = null){
         this.db.run('INSERT INTO articles (name, size, price, origin) VALUES (?, ?, ?, ?)', [name, size, price, origin]);
     }
 
@@ -23,7 +21,6 @@ class ArticlesDAO extends DAO {
     delete(){
 
     }
-
 }
 
 module.exports = ArticlesDAO;

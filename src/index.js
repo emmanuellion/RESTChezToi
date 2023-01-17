@@ -1,15 +1,18 @@
 const ArticlesDAO = require('./articles/ArticlesDAO');
+const DAO = require("./dao/DAO");
 
-const pathToDb = "";
+const pathToDb = "src/mydatabase.db";
 
-const a = new ArticlesDAO(pathToDb);
+DAO.connect(pathToDb);
 
-a.getDb().serialize(() => {
-    a.isValideConnection();
-    a.checkUp();
+DAO.getDb().serialize(async () => {
+    console.log(await ArticlesDAO.select());
+    // console.log(a.checkConnection());
+    // a.checkUp();
     // a.dropTable("test");
 });
 
+// console.log(a.getDb())
 // a.select();
 
 
