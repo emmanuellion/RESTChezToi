@@ -1,10 +1,6 @@
 const DAO = require('../dao/DAO');
 
 class ArticlesDAO extends DAO {
-
-    constructor(db){
-        super(db);
-    }
     
     static select(){
         return this.selectDAO("ArticlesDAO");
