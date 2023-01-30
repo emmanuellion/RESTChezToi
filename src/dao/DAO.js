@@ -10,10 +10,8 @@ class DAO {
     static fileName = "";
 
     //verified
-    static async connect(filePath) {
-        this.fileName = filePath;
-        await this.verifyFile();
-        this.db = new sqlite3.Database(filePath, (err) => {
+    static async connect() {
+        this.db = new sqlite3.Database(this.fileName, (err) => {
             if (err)
                 throw err.message;
             console.log("Connexion établie !")
@@ -21,15 +19,21 @@ class DAO {
     }
 
     //verified
-    static async verifyFile() {
+    static async verifyFile(_filename) {
+        this.fileName = _filename;
+        let error = false;
         try {
             await fs.promises.access(this.fileName, fs.constants.F_OK);
-            await this.checkUp();
         } catch (err) {
+            error = true;
             await fs.promises.writeFile(this.fileName, '');
+        }
+        await this.connect();
+        if(error){
             console.log(`Le fichier ${this.fileName} vient d'être crée`);
             await this.build();
-        }
+        } else
+            await this.checkUp();
     }
 
     //verified
@@ -67,6 +71,8 @@ class DAO {
     }
 
     //verified
+
+
     static async build() {
         await this.connect(this.fileName);
         this.bdd.tables.forEach(table => {
@@ -104,11 +110,12 @@ class DAO {
     static async checkTable(name) {
         return await this.db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='" + name + "'");
     }
-b
+
     //verified
     static async close() {
         try {
             await this.db.close();
+            this.db = null;
             console.log("Closed the database connection");
         } catch (err) {
             throw err.message;

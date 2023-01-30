@@ -9,45 +9,45 @@ const bdd = {
     'articles': {
         id: {
             sql: "INTEGER PRIMARY KEY",
-            faker: faker.datatype.number()
+            faker: () => faker.datatype.number()
         },
         name: {
             sql: "TEXT",
-            faker: faker.commerce.productName()
+            faker: () => faker.commerce.productName()
         },
         size: {
             sql: "INTEGER",
-            faker: faker.random.numeric(4)
+            faker: () => faker.random.numeric(4)
         },
         price: {
             sql: "INTEGER",
-            faker: faker.random.numeric(4)
+            faker: () => faker.random.numeric(4)
         },
         origin: {
             sql: "TEXT",
-            faker: faker.address.country()
+            faker: () => faker.address.country()
         }
     },
     'clients': {
         id: {
             sql: "INTEGER PRIMARY KEY",
-            faker: faker.datatype.number()
+            faker: () => faker.datatype.number()
         },
         name: {
             sql: "TEXT",
-            faker: faker.name.firstName()
+            faker: () => faker.name.firstName()
         },
         email: {
             sql: "TEXT",
-            faker: faker.internet.email()
+            faker: () => faker.internet.email()
         },
         phone: {
             sql: "TEXT",
-            faker: faker.phone.number()
+            faker: () => faker.phone.number()
         },
         address: {
             sql: "TEXT",
-            faker: faker.address.streetAddress()
+            faker: () => faker.address.streetAddress()
         }
     }
 }
@@ -55,31 +55,34 @@ const bdd = {
 DAO.bdd = bdd;
 
 (async () => {
-    await DAO.clean(pathToDb);
-    await DAO.connect(pathToDb);
+    // await DAO.clean(pathToDb);
+    // await DAO.connect(pathToDb);
     // await sleep(3000);
     // await DAO.close();
     // await sleep(3000);
-    // await DAO.connect(pathToDb);
+    await DAO.verifyFile(pathToDb);
+    await DAO.connect();
 
     console.log("====================");
 
     DAO.getDb().serialize(async () => {
-        // await fake(DAO.getDb(), "articles")
+        await fake(DAO.getDb(), "articles");
     });
 })();
 
 async function fake(db, who){
     const keys = Object.keys(bdd[who]).join(',');
-    const placeholders = Object.values(bdd[who]).map((_, i) => `$${i + 1}`).join(',');
+    const placeholders = Object.values(bdd[who]).map((_) => `?`).join(',');
     for(let i = 0; i < 5; i++){
         try {
-            const values = Object.values(bdd[who]).map(prop => prop.faker);
+            let values = Object.values(bdd[who]).map(prop => prop.faker());
             console.log(values)
             const sql = `INSERT INTO ${who} (${keys}) VALUES (${placeholders})`;
-            const statement = await db.prepare(sql);
-            await statement.run(values);
-            console.log("Insertion ligne "+(i+1));
+            await db.run(sql, values, function(err) {
+                if (err)
+                    console.error(err.message);
+                console.log("Insertion ligne "+(i+1));
+            });
         } catch (err) {
             throw err;
         }
