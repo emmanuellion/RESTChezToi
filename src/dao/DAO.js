@@ -70,9 +70,7 @@ class DAO {
         }
     }
 
-    //verified
-
-
+    // verified
     static async build() {
         await this.connect(this.fileName);
         this.bdd.tables.forEach(table => {

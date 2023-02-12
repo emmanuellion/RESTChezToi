@@ -1,56 +1,6 @@
 const DAO = require("./dao/DAO");
-const fs = require('fs').promises;
-const { faker } = require('@faker-js/faker');
-
+const bdd = require("./db");
 const pathToDb = "src/mydatabase.db";
-
-const bdd = {
-    tables: ["articles", "clients"],
-    'articles': {
-        id: {
-            sql: "INTEGER PRIMARY KEY",
-            faker: () => faker.datatype.number()
-        },
-        name: {
-            sql: "TEXT",
-            faker: () => faker.commerce.productName()
-        },
-        size: {
-            sql: "INTEGER",
-            faker: () => faker.random.numeric(4)
-        },
-        price: {
-            sql: "INTEGER",
-            faker: () => faker.random.numeric(4)
-        },
-        origin: {
-            sql: "TEXT",
-            faker: () => faker.address.country()
-        }
-    },
-    'clients': {
-        id: {
-            sql: "INTEGER PRIMARY KEY",
-            faker: () => faker.datatype.number()
-        },
-        name: {
-            sql: "TEXT",
-            faker: () => faker.name.firstName()
-        },
-        email: {
-            sql: "TEXT",
-            faker: () => faker.internet.email()
-        },
-        phone: {
-            sql: "TEXT",
-            faker: () => faker.phone.number()
-        },
-        address: {
-            sql: "TEXT",
-            faker: () => faker.address.streetAddress()
-        }
-    }
-}
 
 DAO.bdd = bdd;
 
@@ -61,7 +11,6 @@ DAO.bdd = bdd;
     // await DAO.close();
     // await sleep(3000);
     await DAO.verifyFile(pathToDb);
-    await DAO.connect();
 
     console.log("====================");
 
@@ -87,8 +36,4 @@ async function fake(db, who){
             throw err;
         }
     }
-}
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }

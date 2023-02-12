@@ -14,6 +14,29 @@ app.post('/personnes/:id', (req, res) => {
     // Do something with personId and personData
 });
 
+app.put('', (req, res) => {
+
+})
+
+app.get('', (req, res) => {
+
+})
+
+app.patch('', (req, res) => {
+
+})
+
+app.delete('', (req, res) => {
+
+})
+
 app.listen(port, () => {
-    console.log('Le serveur écoute sur le port 3000.');
+    console.log('Le serveur écoute sur le port '+port);
 });
+
+/*
+C - PUT
+R - GET
+U - PATCH
+D - DELETE
+ */
