@@ -1,4 +1,5 @@
 const DAO = require("./dao/DAO");
+const ArticlesDAO = require("./articles/ArticlesDAO")
 const bdd = require("./db");
 const pathToDb = "src/mydatabase.db";
 
@@ -14,9 +15,11 @@ DAO.bdd = bdd;
 
     console.log("====================");
 
-    DAO.getDb().serialize(async () => {
-        await fake(DAO.getDb(), "articles");
-    });
+    console.log(await DAO.selectDAO("Articles"));
+
+    // DAO.getDb().serialize(async () => {
+    //     await fake(DAO.getDb(), "clients");
+    // });
 })();
 
 async function fake(db, who){

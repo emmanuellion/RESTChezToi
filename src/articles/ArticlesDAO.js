@@ -2,8 +2,8 @@ const DAO = require('../dao/DAO');
 
 class ArticlesDAO extends DAO {
     
-    static select(){
-        return this.selectDAO("ArticlesDAO");
+    static async select(){
+        return await this.selectDAO("ArticlesDAO");
     }
 
     static async insert(name = null, size = null, price = null, origin = null){

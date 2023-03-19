@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
+const bdd = require("../db");
 
 class DAO {
 
@@ -122,14 +123,48 @@ class DAO {
     }
 
     //verified
-    static async selectDAO(name) {
-        try {
-            const table = name.includes("Articles") ? "articles" : "clients";
-            return await this.db.all(`SELECT * FROM ${table}`);
-        } catch (err) {
-            console.error(err.message);
-            throw err;
-        }
+    static async selectDAO(name, query) {
+        return new Promise((resolve, reject) => {
+            let rows = [];
+            let sql = `SELECT * FROM ${name}`;
+            if(Object.keys(query).length >= 1) {
+                sql += " WHERE ";
+                Object.keys(query).forEach(el => {
+                    if(this.bdd[name][el].sql.includes("TEXT"))
+                        sql += `${el} = '${query[el]}' and`;
+                    else
+                        sql += `${el} = ${query[el]} and`;
+                })
+                sql = sql.substring(0, sql.length-4);
+            }
+            this.db.each(sql, (err, row) => {
+                if (err) reject(err);
+                else rows.push(row);
+            }, (err) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+    }
+
+    static async insertDAO(name, query){
+        return new Promise((resolve, reject) => {
+            const keys = Object.keys(query).join(',');
+            const placeholders = Object.values(query).map((_) => `?`).join(',');
+            let values = [];
+            Object.keys(query).forEach(el => {
+                if (bdd[name][el].sql.includes("TEXT")) values.push(query[el]);
+                else values.push(parseFloat(query[el]));
+            })
+            const sql = `INSERT INTO ${name} (${keys}) VALUES (${placeholders})`;
+            this.db.run(sql, values, (err) => {
+                if (err) reject(err);
+                else resolve("1");
+            }, (err) => {
+                if (err) reject(err);
+                else resolve("1");
+            });
+        });
     }
 
     //verified
