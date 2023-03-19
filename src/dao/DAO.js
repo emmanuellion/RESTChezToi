@@ -147,6 +147,7 @@ class DAO {
         });
     }
 
+    //verified
     static async insertDAO(name, query){
         return new Promise((resolve, reject) => {
             const keys = Object.keys(query).join(',');
@@ -165,6 +166,68 @@ class DAO {
                 else resolve("1");
             });
         });
+    }
+
+    //verified
+    static async updateDAO(name, where, value, query){
+        return new Promise((resolve, reject) => {
+            let sql = `UPDATE ${name} SET `;
+            let end;
+            if (this.bdd[name][where].sql.includes("TEXT")) end = ` WHERE ${where} like '${value}'`;
+            else end = ` WHERE ${where} = ${value}`;
+            Object.keys(query).forEach(el => {
+                if (this.bdd[name][where].sql.includes("TEXT")) sql += `${el} = '${query[el]}'`;
+                else sql += `${el} = ${query[el]}`;
+                sql += ", ";
+            })
+            sql = sql.substring(0, sql.length-2);
+            sql += end;
+            this.db.run(sql, (err) => {
+                if (err) reject(err);
+                else resolve("1");
+            }, (err) => {
+                if (err) reject(err);
+                else resolve("1");
+            });
+        });
+    }
+
+    //verified
+    static async deleteDAO(name, where, value){
+        return new Promise((resolve, reject) => {
+            let sql = `DELETE FROM ${name} WHERE `;
+            if (this.bdd[name][where].sql.includes("TEXT")) sql += `${where} like '${value}'`;
+            else sql += `${where} = ${value}`;
+            this.db.run(sql, (err) => {
+                if (err) reject(err);
+                else resolve("1");
+            }, (err) => {
+                if (err) reject(err);
+                else resolve("1");
+            });
+        });
+    }
+
+    static async fake(){
+        this.bdd["tables"].forEach(table => {
+            const keys = Object.keys(this.bdd[table]).join(',');
+            const placeholders = Object.values(this.bdd[table]).map((_) => `?`).join(',');
+            for(let i = 0; i < 5; i++){
+                try {
+                    let values = Object.values(this.bdd[table]).map(prop => prop.faker());
+                    const sql = `INSERT INTO ${table} (${keys}) VALUES (${placeholders})`;
+                    (async () => {
+                        await this.db.run(sql, values, function(err) {
+                            if (err)
+                                console.error(err.message);
+                            console.log("Insertion ligne "+(i+1));
+                        });
+                    })();
+                } catch (err) {
+                    throw err;
+                }
+            }
+        })
     }
 
     //verified
